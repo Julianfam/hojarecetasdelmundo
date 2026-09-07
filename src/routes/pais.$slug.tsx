@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { getCountryBySlug, countryTour, flavorLabel, neighborsOf } from "@/lib/countries";
+import { dailySeed, hashString, shuffleCopy } from "@/lib/shuffle";
 import { useExplorer } from "@/lib/store";
 import { AppShell } from "@/components/layout/app-shell";
 import { RecipeCard } from "@/components/explorer/recipe-card";
@@ -35,7 +36,8 @@ function CountryPage() {
   const toggleFavorite = useExplorer((s) => s.toggleFavorite);
   const stop = countryTour(kitchen.slug);
   const neighbors = neighborsOf(kitchen.name);
-  const first = kitchen.recipes[0];
+  const plates = shuffleCopy(kitchen.recipes, dailySeed() ^ hashString(`pais:${kitchen.slug}`));
+  const first = plates[0];
 
   return (
     <AppShell overlay>
@@ -112,7 +114,7 @@ function CountryPage() {
               {kitchen.count} {kitchen.count === 1 ? "parada" : "paradas"} en este país
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {kitchen.recipes.map((recipe) => (
+              {plates.map((recipe) => (
                 <RecipeCard
                   key={recipe.slug}
                   recipe={recipe}

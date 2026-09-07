@@ -1,5 +1,5 @@
 import { BOOSTS, type BoostId } from "@/lib/boosts";
-import { SWATCH_ON } from "@/lib/recipes";
+import { SWATCH_DOT, SWATCH_ON } from "@/lib/recipes";
 import { cn } from "@/lib/utils";
 import { DriftRail } from "@/components/explorer/drift-rail";
 
@@ -35,7 +35,7 @@ export function BoostBar({
                 aria-pressed={on}
                 onClick={() => onSelect(b.id)}
                 className={cn(
-                  "min-h-11 shrink-0 whitespace-nowrap rounded-full border px-4 text-sm transition-[background-color,border-color,color] duration-150",
+                  "inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-sm transition-[background-color,border-color,color] duration-150",
                   on
                     ? SWATCH_ON[b.swatch]
                     : onPhoto
@@ -43,6 +43,7 @@ export function BoostBar({
                       : "border-border bg-card text-foreground hover:border-primary/40",
                 )}
               >
+                <span className={cn("mr-2 inline-block size-2 rounded-full", on ? "bg-current opacity-70" : SWATCH_DOT[b.swatch])} />
                 {b.label}
               </button>
             );

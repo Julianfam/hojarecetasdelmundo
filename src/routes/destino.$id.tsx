@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { getRegion, REGIONS, tourInRegion } from "@/lib/recipes";
 import { flavorLabel, kitchensInRegion } from "@/lib/countries";
+import { dailySeed, hashString, shuffleCopy } from "@/lib/shuffle";
 import { useExplorer } from "@/lib/store";
 import { AppShell } from "@/components/layout/app-shell";
 import { RecipeCard } from "@/components/explorer/recipe-card";
@@ -33,7 +34,7 @@ function DestinoPage() {
   if (!region) return <DestinoMissing />;
 
   const kitchens = kitchensInRegion(region.id);
-  const plates = tourInRegion(region.id);
+  const plates = shuffleCopy(tourInRegion(region.id), dailySeed() ^ hashString(`destino:${region.id}`));
   const first = plates[0];
   const favorites = useExplorer((s) => s.favorites);
   const toggleFavorite = useExplorer((s) => s.toggleFavorite);

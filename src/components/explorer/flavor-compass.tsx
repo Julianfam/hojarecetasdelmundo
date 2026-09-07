@@ -1,4 +1,4 @@
-import { FLAVORS, SWATCH_ON, type FlavorId } from "@/lib/recipes";
+import { FLAVORS, SWATCH_DOT, SWATCH_ON, type FlavorId } from "@/lib/recipes";
 import { cn } from "@/lib/utils";
 import { DriftRail } from "@/components/explorer/drift-rail";
 
@@ -22,7 +22,7 @@ export function FlavorCompass({
             aria-pressed={on}
             onClick={() => onToggle(f.id)}
             className={cn(
-              "min-h-11 shrink-0 whitespace-nowrap rounded-full border px-4 text-sm transition-[background-color,border-color,color] duration-150",
+              "inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-sm transition-[background-color,border-color,color] duration-150",
               on
                 ? SWATCH_ON[f.swatch]
                 : onPhoto
@@ -30,6 +30,7 @@ export function FlavorCompass({
                   : "border-border bg-card text-foreground hover:border-primary/40",
             )}
           >
+            <span className={cn("mr-2 inline-block size-2 rounded-full", on ? "bg-current opacity-70" : SWATCH_DOT[f.swatch])} />
             {f.label}
           </button>
         );

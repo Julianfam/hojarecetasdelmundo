@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { FAMILIES, getFamily, RECIPES } from "@/lib/recipes";
 import { getCountry } from "@/lib/countries";
+import { dailySeed, hashString, shuffleCopy } from "@/lib/shuffle";
 import { useExplorer } from "@/lib/store";
 import { AppShell } from "@/components/layout/app-shell";
 import { RecipeCard } from "@/components/explorer/recipe-card";
@@ -31,7 +32,10 @@ function TipoPage() {
   const family = getFamily(id);
   if (!family) return <TipoMissing />;
 
-  const plates = RECIPES.filter((r) => r.familyId === family.id);
+  const plates = shuffleCopy(
+    RECIPES.filter((r) => r.familyId === family.id),
+    dailySeed() ^ hashString(`tipo:${family.id}`),
+  );
   const countries = [...new Set(plates.map((r) => r.country))];
   const first = plates[0];
   const favorites = useExplorer((s) => s.favorites);

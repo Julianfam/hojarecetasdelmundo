@@ -14,7 +14,16 @@ import {
 } from "@/components/ui/dialog";
 
 const WHEEL = 12;
-const PALETTE = ["var(--color-primary)", "var(--color-chile)", "var(--color-leaf)", "var(--color-wine)"];
+const PALETTE = [
+  "var(--color-rojo)",
+  "var(--color-queso)",
+  "var(--color-mora)",
+  "var(--color-naranja)",
+  "var(--color-chile)",
+  "var(--color-leaf)",
+  "var(--color-wine)",
+  "var(--color-primary)",
+];
 
 export function CravingRoulette() {
   const navigate = useNavigate();

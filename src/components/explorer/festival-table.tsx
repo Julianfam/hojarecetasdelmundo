@@ -1,48 +1,68 @@
 import { Link } from "@tanstack/react-router";
 import { Shuffle } from "lucide-react";
-import { currentFestivals, festivalRecipes, type FestivalAccent } from "@/lib/festivals";
-import { useExplorer } from "@/lib/store";
+import { dateStamp, todaysTable, festivalRecipes, type Festival, type FestivalAccent } from "@/lib/festivals";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { SWATCH_DOT } from "@/lib/swatch";
 
 const ACCENT: Record<FestivalAccent, string> = {
+  gold: "border-primary/40 bg-primary/10",
   chile: "border-chile/40 bg-chile/10",
   leaf: "border-leaf/40 bg-leaf/10",
-  gold: "border-primary/40 bg-primary/10",
+  wine: "border-wine/40 bg-wine/10",
+  rojo: "border-rojo/40 bg-rojo/10",
+  mora: "border-mora/40 bg-mora/10",
+  naranja: "border-naranja/40 bg-naranja/10",
+  queso: "border-queso/50 bg-queso/20",
 };
 
-const DOT: Record<FestivalAccent, string> = {
+const BAR: Record<FestivalAccent, string> = {
+  gold: "bg-primary",
   chile: "bg-chile",
   leaf: "bg-leaf",
-  gold: "bg-primary",
+  wine: "bg-wine",
+  rojo: "bg-rojo",
+  mora: "bg-mora",
+  naranja: "bg-naranja",
+  queso: "bg-queso",
 };
 
-export function FestivalTable({ seed }: { seed: number }) {
-  const festivals = currentFestivals();
-  const [lead, ...rest] = festivals;
-  if (!lead) return null;
-  const dishes = festivalRecipes(lead, seed, 6);
+export function FestivalTable({
+  seed,
+  lead,
+  rest,
+  dishes,
+}: {
+  seed: number;
+  lead?: Festival;
+  rest?: Festival[];
+  dishes?: ReturnType<typeof festivalRecipes>;
+}) {
+  const table = lead ? { lead, rest: rest ?? [] } : todaysTable();
+  const show = dishes ?? festivalRecipes(table.lead, seed, 6);
+  if (!table.lead) return null;
 
   return (
     <section className="border-b border-border">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-        <div className={cn("rounded-xl border p-4 sm:p-5", ACCENT[lead.accent])}>
-          <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className={cn("relative overflow-hidden rounded-xl border p-4 sm:p-5", ACCENT[table.lead.accent])}>
+          <span className={cn("absolute inset-y-0 left-0 w-1.5", BAR[table.lead.accent])} />
+          <div className="flex flex-wrap items-start justify-between gap-3 pl-2">
             <div>
               <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
-                Hoy en la mesa
+                Hoy en la mesa · {dateStamp()}
               </p>
-              <h2 className="mt-1 font-display text-2xl">{lead.name}</h2>
-              <p className="mt-1 max-w-xl text-sm text-muted-foreground">{lead.blurb}</p>
+              <h2 className="mt-1 font-display text-2xl">{table.lead.name}</h2>
+              <p className="mt-1 max-w-xl text-sm text-muted-foreground">{table.lead.blurb}</p>
             </div>
-            {rest.length > 0 ? (
+            {table.rest.length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {rest.map((fest) => (
+                {table.rest.slice(0, 4).map((fest) => (
                   <span
                     key={fest.id}
                     className="inline-flex items-center gap-2 rounded-full border border-border bg-background/50 px-3 py-1 text-xs"
                   >
-                    <span className={cn("size-1.5 rounded-full", DOT[fest.accent])} />
+                    <span className={cn("size-1.5 rounded-full", SWATCH_DOT[fest.accent])} />
                     {fest.name}
                   </span>
                 ))}
@@ -50,7 +70,7 @@ export function FestivalTable({ seed }: { seed: number }) {
             ) : null}
           </div>
           <div className="-mx-1 mt-4 flex gap-3 overflow-x-auto px-1 pb-1">
-            {dishes.map((dish) => (
+            {show.map((dish) => (
               <Link
                 key={dish.slug}
                 to="/recipe/$slug"
@@ -74,7 +94,7 @@ export function FestivalTable({ seed }: { seed: number }) {
 
 export function ShuffleMesa({ onShuffle }: { onShuffle: () => void }) {
   return (
-    <Button variant="chile" className="h-9 px-3" onClick={onShuffle}>
+    <Button variant="chile" className="h-9 bg-rojo text-rojo-foreground hover:bg-rojo/90 px-3" onClick={onShuffle}>
       <Shuffle />
       Otra mesa
     </Button>

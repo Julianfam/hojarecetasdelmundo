@@ -393,6 +393,8 @@ const SLUG: Record<string, FamilyId> = {
 export function familyOf(slug: string, name: string, tags: string[]): FamilyId {
   const hit = SLUG[slug];
   if (hit) return hit;
+  const tagged = FAMILIES.find((f) => tags.includes(f.id));
+  if (tagged) return tagged.id;
   const hay = `${slug} ${name} ${tags.join(" ")}`.toLowerCase();
   if (/desayuno|breakfast|changua|shakshuka|dosa|kaya|menemen|chilaquiles/.test(hay)) return "desayuno";
   if (/postre|dessert|tiramisu|knafeh|baklava|churro|alfajor|nata|tres leches/.test(hay)) return "postre";

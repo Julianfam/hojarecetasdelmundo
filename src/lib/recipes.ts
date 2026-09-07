@@ -1,11 +1,20 @@
-import { EXPANSION } from "./catalog-expansion";
-import { WAVE } from "./catalog-wave";
-import { MESA } from "./catalog-mesa";
-import { CURSOS } from "./catalog-cursos";
 import { hydrateRecipe } from "./cook-steps";
 import { shuffleCopy } from "./shuffle";
 import { boostHay, boostScore, type BoostId } from "./boosts";
 import type { FlavorId, MoodId, Recipe, RecipeSource, RegionId } from "./recipe-types";
+import type { SwatchId } from "./swatch";
+import { EXPANSION } from "./catalog-expansion";
+import { WAVE } from "./catalog-wave";
+import { MESA } from "./catalog-mesa";
+import { CURSOS } from "./catalog-cursos";
+import { expandAtlas } from "./atlas-expand";
+import { ATLAS_LATAM } from "./atlas-latam";
+import { ATLAS_EUROPA } from "./atlas-europa";
+import { ATLAS_ASIA } from "./atlas-asia";
+import { ATLAS_RESTO } from "./atlas-resto";
+import { ATLAS_EXTRA } from "./atlas-extra";
+import { ATLAS_NACIONES } from "./atlas-naciones";
+import { rebalanceImages } from "./dish-images";
 
 export type {
   CookStep,
@@ -20,31 +29,18 @@ export type {
 } from "./recipe-types";
 export { FAMILIES, familyOf, getFamily, recipesInFamily, COURSE_IDS } from "./families";
 export { formatStepClock, timerSecondsForStep } from "./cook-steps";
+export { SWATCH_CHIP, SWATCH_DOT, SWATCH_ON, type SwatchId } from "./swatch";
 
-export const FLAVORS: { id: FlavorId; label: string; blurb: string; swatch: "gold" | "chile" | "leaf" | "wine" }[] = [
-  { id: "umami", label: "Umami", blurb: "Caldo, soja, profundidad", swatch: "gold" },
-  { id: "picante", label: "Picante", blurb: "Ají, chile, fuego", swatch: "chile" },
-  { id: "citrico", label: "Cítrico", blurb: "Lima, vinagre, brillo", swatch: "gold" },
+export const FLAVORS: { id: FlavorId; label: string; blurb: string; swatch: SwatchId }[] = [
+  { id: "umami", label: "Umami", blurb: "Caldo, soja, profundidad", swatch: "queso" },
+  { id: "picante", label: "Picante", blurb: "Ají, chile, fuego", swatch: "rojo" },
+  { id: "citrico", label: "Cítrico", blurb: "Lima, vinagre, brillo", swatch: "naranja" },
   { id: "ahumado", label: "Ahumado", blurb: "Brasa, pimentón, carbón", swatch: "wine" },
   { id: "herbal", label: "Herbal", blurb: "Cilantro, albahaca, menta", swatch: "leaf" },
-  { id: "dulce", label: "Dulce", blurb: "Caramelo, fruta, coco", swatch: "chile" },
-  { id: "cremoso", label: "Cremoso", blurb: "Yema, nata, mantequilla", swatch: "gold" },
-  { id: "fresco", label: "Fresco", blurb: "Crudo, crujiente, jardín", swatch: "leaf" },
+  { id: "dulce", label: "Dulce", blurb: "Caramelo, fruta, coco", swatch: "mora" },
+  { id: "cremoso", label: "Cremoso", blurb: "Yema, nata, mantequilla", swatch: "queso" },
+  { id: "fresco", label: "Fresco", blurb: "Crudo, crujiente, jardín", swatch: "naranja" },
 ];
-
-export const SWATCH_CHIP: Record<"gold" | "chile" | "leaf" | "wine", string> = {
-  gold: "border-primary/45 bg-primary/15 text-stamp",
-  chile: "border-chile/45 bg-chile/12 text-chile",
-  leaf: "border-leaf/45 bg-leaf/12 text-leaf",
-  wine: "border-wine/45 bg-wine/12 text-wine",
-};
-
-export const SWATCH_ON: Record<"gold" | "chile" | "leaf" | "wine", string> = {
-  gold: "border-primary bg-primary text-primary-foreground",
-  chile: "border-chile bg-chile text-chile-foreground",
-  leaf: "border-leaf bg-leaf text-leaf-foreground",
-  wine: "border-wine bg-wine text-wine-foreground",
-};
 
 export const REGIONS: { id: RegionId; label: string; hint: string; cover: string }[] = [
   { id: "latam", label: "América Latina", hint: "Maíz, ají, brasa", cover: "/dishes/tacos-al-pastor.jpg" },
@@ -1657,7 +1653,14 @@ const CORE_RECIPES: RecipeSource[] = [
   },
 ];
 
-export const RECIPES: Recipe[] = [...CORE_RECIPES, ...EXPANSION, ...WAVE, ...MESA, ...CURSOS].map(hydrateRecipe);
+export const RECIPES: Recipe[] = rebalanceImages([
+  ...CORE_RECIPES,
+  ...EXPANSION,
+  ...WAVE,
+  ...MESA,
+  ...CURSOS,
+  ...expandAtlas([...ATLAS_LATAM, ...ATLAS_EUROPA, ...ATLAS_ASIA, ...ATLAS_RESTO, ...ATLAS_EXTRA, ...ATLAS_NACIONES]),
+].map(hydrateRecipe));
 
 const BY_SLUG = new Map(RECIPES.map((r) => [r.slug, r]));
 

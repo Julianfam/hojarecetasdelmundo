@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { FlavorId, MoodId, RegionId } from "@/lib/recipe-types";
 import type { BoostId } from "@/lib/boosts";
+import { freshSeed } from "@/lib/shuffle";
 
 export interface BasketItem {
   slug: string;
@@ -81,7 +82,7 @@ export const useExplorer = create<ExplorerState>()(
       basket: [],
       toast: null,
       favoritesOnly: false,
-      suggestionSeed: 1,
+      suggestionSeed: 0,
       hydrated: false,
       setQuery: (query) => set({ query }),
       toggleFlavor: (id) =>
@@ -153,10 +154,7 @@ export const useExplorer = create<ExplorerState>()(
       clearBasket: () => set({ basket: [] }),
       clearToast: () => set({ toast: null }),
       setFavoritesOnly: (on) => set({ favoritesOnly: on }),
-      reshuffle: () =>
-        set({
-          suggestionSeed: (Date.now() ^ Math.floor(Math.random() * 1_000_000)) >>> 0 || 1,
-        }),
+      reshuffle: () => set({ suggestionSeed: freshSeed() }),
       clearFilters: () =>
         set({
           query: "",

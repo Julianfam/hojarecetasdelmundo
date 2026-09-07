@@ -1,4 +1,5 @@
 import type { Recipe } from "./recipe-types";
+import type { SwatchId } from "./swatch";
 
 export type BoostId =
   | "energia"
@@ -14,15 +15,15 @@ export const BOOSTS: {
   id: BoostId;
   label: string;
   blurb: string;
-  swatch: "gold" | "chile" | "leaf" | "wine";
+  swatch: SwatchId;
 }[] = [
-  { id: "energia", label: "Energía", blurb: "Carbohidrato, picante, un plato que despierta.", swatch: "chile" },
-  { id: "cansancio", label: "Cansancio", blurb: "Hierro, caldo, consuelo de cuchara.", swatch: "gold" },
+  { id: "energia", label: "Energía", blurb: "Carbohidrato, picante, un plato que despierta.", swatch: "naranja" },
+  { id: "cansancio", label: "Cansancio", blurb: "Hierro, caldo, consuelo de cuchara.", swatch: "queso" },
   { id: "recuperacion", label: "Recuperación", blurb: "Proteína, jengibre, colágeno.", swatch: "leaf" },
-  { id: "fuerza", label: "Fuerza", blurb: "Carne, legumbre, plato que sostiene.", swatch: "wine" },
-  { id: "defensas", label: "Defensas", blurb: "Ajo, cítrico, chile y caldo.", swatch: "chile" },
+  { id: "fuerza", label: "Fuerza", blurb: "Carne, legumbre, plato que sostiene.", swatch: "rojo" },
+  { id: "defensas", label: "Defensas", blurb: "Ajo, cítrico, chile y caldo.", swatch: "mora" },
   { id: "digestion", label: "Digestión", blurb: "Ligero, hierba, sin fritura.", swatch: "leaf" },
-  { id: "foco", label: "Foco", blurb: "Pescado, cítrico, mesa corta.", swatch: "gold" },
+  { id: "foco", label: "Foco", blurb: "Pescado, cítrico, mesa corta.", swatch: "naranja" },
   { id: "abrigo", label: "Abrigo", blurb: "Estofado, caldo, frío afuera.", swatch: "wine" },
 ];
 

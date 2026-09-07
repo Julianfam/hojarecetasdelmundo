@@ -9,6 +9,7 @@ import {
   REGIONS,
   FAMILIES,
   COURSE_IDS,
+  SWATCH_DOT,
   SWATCH_ON,
 } from "@/lib/recipes";
 import {
@@ -17,9 +18,9 @@ import {
   getCountry,
   groupRecipesByCountry,
 } from "@/lib/countries";
-import { suggestFeatured } from "@/lib/festivals";
+import { festivalRecipes, suggestFeatured, todaysTable } from "@/lib/festivals";
 import { getBoost } from "@/lib/boosts";
-import { hashString, shuffleCopy } from "@/lib/shuffle";
+import { dailySeed, hashString, shuffleCopy, withoutSlugs } from "@/lib/shuffle";
 import { useExplorer } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { AppShell } from "@/components/layout/app-shell";
@@ -37,10 +38,10 @@ const PAGE_SIZE = 12;
 const COUNTRY_PAGE = 5;
 
 const MOOD_SWATCH = {
-  consuelo: "gold",
-  fiesta: "chile",
-  ligero: "leaf",
-  impresionar: "wine",
+  consuelo: "queso",
+  fiesta: "rojo",
+  ligero: "naranja",
+  impresionar: "mora",
 } as const;
 
 function Home() {
@@ -53,7 +54,8 @@ function Home() {
   const pantry = useExplorer((s) => s.pantry);
   const favorites = useExplorer((s) => s.favorites);
   const favoritesOnly = useExplorer((s) => s.favoritesOnly);
-  const seed = useExplorer((s) => s.suggestionSeed);
+  const seedRaw = useExplorer((s) => s.suggestionSeed);
+  const seed = seedRaw || dailySeed();
   const reshuffle = useExplorer((s) => s.reshuffle);
   const setQuery = useExplorer((s) => s.setQuery);
   const toggleFlavor = useExplorer((s) => s.toggleFlavor);
@@ -67,6 +69,15 @@ function Home() {
   }, [reshuffle]);
 
   const featured = useMemo(() => suggestFeatured(seed), [seed]);
+  const table = useMemo(() => todaysTable(), []);
+  const festivalDishes = useMemo(
+    () => festivalRecipes(table.lead, seed, 6, [featured.slug]),
+    [table.lead, seed, featured.slug],
+  );
+  const usedOnTop = useMemo(
+    () => new Set([featured.slug, ...festivalDishes.map((d) => d.slug)]),
+    [featured.slug, festivalDishes],
+  );
   const results = useMemo(
     () =>
       filterRecipes({
@@ -86,20 +97,34 @@ function Home() {
   const kitchens = useMemo(() => countryKitchens(), []);
   const kitchen = country ? getCountry(country) : undefined;
   const countryRail = regionId ? kitchens.filter((k) => k.regionId === regionId) : kitchens;
-  const shuffledRail = useMemo(() => shuffleCopy(countryRail, seed), [countryRail, seed]);
+  const shuffledRail = useMemo(
+    () => shuffleCopy(countryRail, seed ^ hashString("paises")),
+    [countryRail, seed],
+  );
+  const shuffledRegions = useMemo(() => shuffleCopy(REGIONS, seed ^ hashString("destinos")), [seed]);
+  const shuffledTypes = useMemo(
+    () => shuffleCopy(
+      FAMILIES.filter((f) => !COURSE_IDS.includes(f.id)),
+      seed ^ hashString("tipos"),
+    ),
+    [seed],
+  );
 
   const chapters = useMemo(
     () => groupRecipesByCountry(results.map((r) => r.recipe)),
     [results],
   );
-  const shuffledChapters = useMemo(
-    () =>
-      shuffleCopy(chapters, seed).map((chapter) => ({
-        ...chapter,
-        recipes: shuffleCopy(chapter.recipes, seed ^ hashString(chapter.name)).slice(0, 3),
-      })),
-    [chapters, seed],
-  );
+  const shuffledChapters = useMemo(() => {
+    const claimed = new Set(usedOnTop);
+    return shuffleCopy(chapters, seed ^ hashString("capitulos")).map((chapter) => {
+      const recipes = shuffleCopy(
+        withoutSlugs(chapter.recipes, claimed),
+        seed ^ hashString(chapter.name),
+      ).slice(0, 3);
+      for (const recipe of recipes) claimed.add(recipe.slug);
+      return { ...chapter, recipes };
+    });
+  }, [chapters, seed, usedOnTop]);
 
   const active =
     query.length > 0 ||
@@ -198,12 +223,18 @@ function Home() {
                   onClick={() => setMood(m.id)}
                   aria-pressed={mood === m.id}
                   className={cn(
-                    "min-h-11 shrink-0 whitespace-nowrap rounded-full border px-4 text-sm transition-[background-color,border-color,color] duration-150",
+                    "inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-sm transition-[background-color,border-color,color] duration-150",
                     mood === m.id
                       ? SWATCH_ON[MOOD_SWATCH[m.id]]
                       : "border-cream/40 bg-ink/30 text-cream hover:bg-ink/45",
                   )}
                 >
+                  <span
+                    className={cn(
+                      "mr-2 inline-block size-2 rounded-full",
+                      mood === m.id ? "bg-current opacity-70" : SWATCH_DOT[MOOD_SWATCH[m.id]],
+                    )}
+                  />
                   {m.label}
                 </button>
               ))}
@@ -222,7 +253,9 @@ function Home() {
           </div>
         </section>
 
-        {showFeatured ? <FestivalTable seed={seed} /> : null}
+        {showFeatured ? (
+          <FestivalTable seed={seed} lead={table.lead} rest={table.rest} dishes={festivalDishes} />
+        ) : null}
 
         {!active ? (
           <>
@@ -237,7 +270,7 @@ function Home() {
               </Button>
             </div>
             <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
-              {REGIONS.map((r) => {
+              {shuffledRegions.map((r) => {
                 const count = RECIPES.filter((x) => x.regionId === r.id).length;
                 return (
                   <Link
@@ -297,7 +330,7 @@ function Home() {
               Por tipo de plato
             </p>
             <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
-              {FAMILIES.filter((f) => !COURSE_IDS.includes(f.id)).map((f) => {
+              {shuffledTypes.map((f) => {
                 const count = RECIPES.filter((x) => x.familyId === f.id).length;
                 return (
                   <Link

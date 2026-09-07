@@ -35,3 +35,28 @@ export function hashString(value: string) {
   }
   return h >>> 0;
 }
+
+export function dayOfYear(date = new Date()) {
+  const start = Date.UTC(date.getFullYear(), 0, 0);
+  const now = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  return Math.floor((now - start) / 86_400_000);
+}
+
+export function dailySeed(date = new Date()) {
+  return hashString(`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`);
+}
+
+export function freshSeed() {
+  const now = Date.now() >>> 0;
+  const mix = Math.floor(Math.random() * 0xffffffff) >>> 0;
+  return (now ^ mix ^ dailySeed()) >>> 0 || 1;
+}
+
+export function takeShuffled<T>(items: T[], seed: number, count: number, salt = "") {
+  return shuffleCopy(items, seed ^ (salt ? hashString(salt) : 0)).slice(0, Math.max(0, count));
+}
+
+export function withoutSlugs<T extends { slug: string }>(items: T[], used: Iterable<string>) {
+  const skip = new Set(used);
+  return items.filter((item) => !skip.has(item.slug));
+}
