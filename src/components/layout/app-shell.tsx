@@ -37,10 +37,10 @@ export function AppShell({
             to="/"
             className={cn(
               "flex min-h-11 min-w-0 items-center gap-2",
-              overlay && "text-foreground",
+              overlay && "overlay-mark",
             )}
           >
-            <Leaf className="size-5 shrink-0 text-primary" />
+            <Leaf className="size-5 shrink-0 text-leaf" />
             <span className="font-display text-xl font-medium tracking-tight">Hoja</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
@@ -72,7 +72,7 @@ export function AppShell({
                   <span
                     className={cn(
                       "hidden text-xs tabular-nums sm:inline",
-                      overlay ? "text-foreground/80" : "text-muted-foreground",
+                      overlay ? "text-cream/80" : "text-muted-foreground",
                     )}
                   >
                     {favorites.length}

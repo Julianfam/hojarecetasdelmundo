@@ -14,6 +14,7 @@ import {
   type Recipe,
 } from "@/lib/recipes";
 import { countrySlug, countryStops, getCountry } from "@/lib/countries";
+import { recipeBoosts } from "@/lib/boosts";
 import { useExplorer } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { AppShell } from "@/components/layout/app-shell";
@@ -93,7 +94,7 @@ function RecipeBody({ recipe }: { recipe: Recipe }) {
             fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/45 to-background/40" />
+          <div className="absolute inset-0 photo-scrim" />
           <div className="relative mx-auto flex min-h-[78svh] max-w-6xl flex-col justify-end px-4 pt-24 pb-10 sm:px-6">
             <Button variant="secondary" asChild className="mb-6 w-fit">
               <Link to="/">
@@ -101,7 +102,7 @@ function RecipeBody({ recipe }: { recipe: Recipe }) {
                 Hoja
               </Link>
             </Button>
-            <p className="text-xs tracking-[0.18em] text-foreground/80 uppercase">
+            <p className="text-xs tracking-[0.18em] text-cream/80 uppercase">
               Parada {stop.index + 1} de {stop.total}
               {" · "}
               <Link
@@ -125,11 +126,11 @@ function RecipeBody({ recipe }: { recipe: Recipe }) {
                 </>
               ) : null}
             </p>
-            <h1 className="mt-2 font-display text-4xl font-medium tracking-tight text-foreground sm:text-6xl">
+            <h1 className="mt-2 font-display text-4xl font-medium tracking-tight text-cream sm:text-6xl">
               {recipe.name}
             </h1>
             {recipe.nameLocal && recipe.nameLocal !== recipe.name ? (
-              <p className="mt-1 text-foreground/80 italic">{recipe.nameLocal}</p>
+              <p className="mt-1 text-cream/80 italic">{recipe.nameLocal}</p>
             ) : null}
             <div className="mt-5 flex flex-wrap gap-2">
               <Button onClick={() => setCook(true)}>
@@ -217,6 +218,11 @@ function RecipeBody({ recipe }: { recipe: Recipe }) {
               {recipe.flavors.map((id) => (
                 <Badge key={id} variant="outline">
                   {FLAVORS.find((f) => f.id === id)?.label ?? id}
+                </Badge>
+              ))}
+              {recipeBoosts(recipe).map((b) => (
+                <Badge key={b.id} variant="stamp">
+                  {b.label}
                 </Badge>
               ))}
             </div>

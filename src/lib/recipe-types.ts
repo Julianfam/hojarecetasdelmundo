@@ -32,7 +32,10 @@ export type FamilyId =
   | "curry"
   | "frito"
   | "pan"
-  | "crudo";
+  | "crudo"
+  | "desayuno"
+  | "postre"
+  | "bebida";
 
 export type Difficulty = "fácil" | "media" | "alta";
 

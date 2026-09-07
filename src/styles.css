@@ -5,22 +5,30 @@
   --font-display: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
 
-  --color-background: #14110e;
-  --color-foreground: #f3ead8;
-  --color-card: #1c1814;
-  --color-card-foreground: #f3ead8;
-  --color-primary: #c6a36a;
-  --color-primary-foreground: #14110e;
-  --color-secondary: #2a241e;
-  --color-secondary-foreground: #f3ead8;
-  --color-muted: #241f1a;
-  --color-muted-foreground: #b7a790;
-  --color-accent: #2a241e;
-  --color-accent-foreground: #e8d5b0;
-  --color-border: #3a332b;
-  --color-ring: #c6a36a;
-  --color-faint: #8f8373;
-  --color-stamp: #d4b483;
+  --color-background: #f3eadc;
+  --color-foreground: #2a221b;
+  --color-card: #fff9f0;
+  --color-card-foreground: #2a221b;
+  --color-primary: #c09a52;
+  --color-primary-foreground: #2a221b;
+  --color-secondary: #ebe1d0;
+  --color-secondary-foreground: #2a221b;
+  --color-muted: #ebe2d3;
+  --color-muted-foreground: #6f6356;
+  --color-accent: #e7dccb;
+  --color-accent-foreground: #2a221b;
+  --color-border: #d9ccb6;
+  --color-ring: #c09a52;
+  --color-faint: #9a8c7b;
+  --color-stamp: #9a6f2e;
+  --color-chile: #c4472e;
+  --color-chile-foreground: #fff9f0;
+  --color-leaf: #4f7c4c;
+  --color-leaf-foreground: #fff9f0;
+  --color-wine: #8a3544;
+  --color-wine-foreground: #fff9f0;
+  --color-ink: #1a1612;
+  --color-cream: #faf4ea;
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
@@ -43,6 +51,24 @@
 
   body {
     background-color: var(--color-background);
+    background-image:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-card) 82%, var(--color-background)),
+        var(--color-background) 36%
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 17px,
+        color-mix(in srgb, var(--color-foreground) 1.1%, transparent) 18px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 17px,
+        color-mix(in srgb, var(--color-foreground) 0.8%, transparent) 18px
+      );
     color: var(--color-foreground);
     font-family: var(--font-sans);
     line-height: 1.5;
@@ -61,6 +87,35 @@
 
   p {
     text-wrap: pretty;
+  }
+
+  img {
+    outline: 1px solid color-mix(in srgb, var(--color-ink) 8%, transparent);
+    outline-offset: -1px;
+  }
+}
+
+@layer components {
+  .photo-scrim {
+    background-image: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-ink) 86%, transparent) 0%,
+      color-mix(in srgb, var(--color-ink) 42%, transparent) 48%,
+      color-mix(in srgb, var(--color-ink) 28%, transparent) 100%
+    );
+  }
+
+  .photo-scrim-tile {
+    background-image: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-ink) 80%, transparent) 0%,
+      color-mix(in srgb, var(--color-ink) 10%, transparent) 100%
+    );
+  }
+
+  .overlay-mark {
+    color: var(--color-cream);
+    filter: drop-shadow(0 1px 10px color-mix(in srgb, var(--color-ink) 55%, transparent));
   }
 }
 

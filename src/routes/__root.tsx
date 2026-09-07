@@ -15,7 +15,7 @@ export const Route = createRootRoute({
         name: "description",
         content: "Hoja — recetas del mundo, buscadas por sabor, ingrediente y región.",
       },
-      { name: "theme-color", content: "#14110e" },
+      { name: "theme-color", content: "#f3eadc" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },

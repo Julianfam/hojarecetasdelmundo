@@ -1,5 +1,6 @@
-import { FLAVORS, type FlavorId } from "@/lib/recipes";
+import { FLAVORS, SWATCH_ON, type FlavorId } from "@/lib/recipes";
 import { cn } from "@/lib/utils";
+import { DriftRail } from "@/components/explorer/drift-rail";
 
 export function FlavorCompass({
   selected,
@@ -11,21 +12,21 @@ export function FlavorCompass({
   onPhoto?: boolean;
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <DriftRail label="Sabores">
       {FLAVORS.map((f) => {
         const on = selected.includes(f.id);
         return (
           <button
             key={f.id}
             type="button"
-            onClick={() => onToggle(f.id)}
             aria-pressed={on}
+            onClick={() => onToggle(f.id)}
             className={cn(
-              "min-h-11 rounded-full border px-4 text-sm transition-[background-color,border-color,color] duration-150",
+              "min-h-11 shrink-0 whitespace-nowrap rounded-full border px-4 text-sm transition-[background-color,border-color,color] duration-150",
               on
-                ? "border-primary bg-primary text-primary-foreground"
+                ? SWATCH_ON[f.swatch]
                 : onPhoto
-                  ? "border-foreground/35 bg-background/25 text-foreground hover:bg-background/40"
+                  ? "border-cream/40 bg-ink/30 text-cream hover:bg-ink/45"
                   : "border-border bg-card text-foreground hover:border-primary/40",
             )}
           >
@@ -33,6 +34,6 @@ export function FlavorCompass({
           </button>
         );
       })}
-    </div>
+    </DriftRail>
   );
 }

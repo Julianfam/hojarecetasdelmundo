@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search, X } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import {
-  dailyRecipe,
   filterRecipes,
   MOODS,
   RECIPES,
   REGIONS,
   FAMILIES,
+  COURSE_IDS,
+  SWATCH_ON,
 } from "@/lib/recipes";
 import {
   countryKitchens,
@@ -16,10 +17,16 @@ import {
   getCountry,
   groupRecipesByCountry,
 } from "@/lib/countries";
+import { suggestFeatured } from "@/lib/festivals";
+import { getBoost } from "@/lib/boosts";
+import { hashString, shuffleCopy } from "@/lib/shuffle";
 import { useExplorer } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { AppShell } from "@/components/layout/app-shell";
 import { FlavorCompass } from "@/components/explorer/flavor-compass";
+import { BoostBar } from "@/components/explorer/boost-bar";
+import { DriftRail } from "@/components/explorer/drift-rail";
+import { FestivalTable, ShuffleMesa } from "@/components/explorer/festival-table";
 import { RecipeCard } from "@/components/explorer/recipe-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,22 +36,37 @@ export const Route = createFileRoute("/")({ component: Home });
 const PAGE_SIZE = 12;
 const COUNTRY_PAGE = 5;
 
+const MOOD_SWATCH = {
+  consuelo: "gold",
+  fiesta: "chile",
+  ligero: "leaf",
+  impresionar: "wine",
+} as const;
+
 function Home() {
   const query = useExplorer((s) => s.query);
   const flavors = useExplorer((s) => s.flavors);
   const regionId = useExplorer((s) => s.regionId);
   const country = useExplorer((s) => s.country);
   const mood = useExplorer((s) => s.mood);
+  const boost = useExplorer((s) => s.boost);
   const pantry = useExplorer((s) => s.pantry);
   const favorites = useExplorer((s) => s.favorites);
   const favoritesOnly = useExplorer((s) => s.favoritesOnly);
+  const seed = useExplorer((s) => s.suggestionSeed);
+  const reshuffle = useExplorer((s) => s.reshuffle);
   const setQuery = useExplorer((s) => s.setQuery);
   const toggleFlavor = useExplorer((s) => s.toggleFlavor);
   const setMood = useExplorer((s) => s.setMood);
+  const setBoost = useExplorer((s) => s.setBoost);
   const toggleFavorite = useExplorer((s) => s.toggleFavorite);
   const clearFilters = useExplorer((s) => s.clearFilters);
 
-  const featured = useMemo(() => dailyRecipe(), []);
+  useEffect(() => {
+    reshuffle();
+  }, [reshuffle]);
+
+  const featured = useMemo(() => suggestFeatured(seed), [seed]);
   const results = useMemo(
     () =>
       filterRecipes({
@@ -53,20 +75,30 @@ function Home() {
         regionId,
         country,
         mood,
+        boost,
         pantry,
         favoritesOnly,
         favoriteSlugs: favorites,
       }),
-    [query, flavors, regionId, country, mood, pantry, favoritesOnly, favorites],
+    [query, flavors, regionId, country, mood, boost, pantry, favoritesOnly, favorites],
   );
 
   const kitchens = useMemo(() => countryKitchens(), []);
   const kitchen = country ? getCountry(country) : undefined;
   const countryRail = regionId ? kitchens.filter((k) => k.regionId === regionId) : kitchens;
+  const shuffledRail = useMemo(() => shuffleCopy(countryRail, seed), [countryRail, seed]);
 
   const chapters = useMemo(
     () => groupRecipesByCountry(results.map((r) => r.recipe)),
     [results],
+  );
+  const shuffledChapters = useMemo(
+    () =>
+      shuffleCopy(chapters, seed).map((chapter) => ({
+        ...chapter,
+        recipes: shuffleCopy(chapter.recipes, seed ^ hashString(chapter.name)).slice(0, 3),
+      })),
+    [chapters, seed],
   );
 
   const active =
@@ -75,24 +107,42 @@ function Home() {
     regionId !== null ||
     country !== null ||
     mood !== null ||
+    boost !== null ||
     favoritesOnly ||
     pantry.length > 0;
 
   const showFeatured = !active;
   const [shown, setShown] = useState(PAGE_SIZE);
   const [shownCountries, setShownCountries] = useState(COUNTRY_PAGE);
-  const groupWorld = !country && !favoritesOnly && query.length === 0;
+  const groupWorld =
+    !country &&
+    !favoritesOnly &&
+    query.length === 0 &&
+    !boost &&
+    flavors.length === 0 &&
+    mood === null;
+
+  const resultsRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!active) return;
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [active, flavors, boost, mood, query]);
 
   useEffect(() => {
     setShown(PAGE_SIZE);
     setShownCountries(COUNTRY_PAGE);
-  }, [query, flavors, regionId, country, mood, pantry, favoritesOnly]);
+  }, [query, flavors, regionId, country, mood, boost, pantry, favoritesOnly, seed]);
 
-  const visible = results.slice(0, shown);
-  const visibleChapters = chapters.slice(0, shownCountries);
+  const visible = useMemo(
+    () => (active ? results.slice(0, shown) : shuffleCopy(results, seed).slice(0, shown)),
+    [active, results, shown, seed],
+  );
+  const visibleChapters = shuffledChapters.slice(0, shownCountries);
+  const boostMeta = getBoost(boost);
 
   return (
-    <AppShell overlay>
+    <AppShell overlay={!active}>
       <main>
         <section className="relative min-h-[92svh]">
           <img
@@ -100,12 +150,12 @@ function Home() {
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/45 to-background/40" />
+          <div className="absolute inset-0 photo-scrim" />
           <div className="relative mx-auto flex min-h-[92svh] max-w-6xl flex-col justify-end px-4 pt-24 pb-10 sm:px-6">
-            <p className="text-xs font-medium tracking-[0.28em] text-foreground/80 uppercase">
+            <p className="text-xs font-medium tracking-[0.28em] text-cream/80 uppercase">
               {kitchens.length} cocinas · {RECIPES.length} platos
             </p>
-            <h1 className="mt-3 max-w-3xl font-display text-5xl font-medium tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+            <h1 className="mt-3 max-w-3xl font-display text-5xl font-medium tracking-tight text-cream sm:text-6xl lg:text-7xl">
               El mundo cabe en un plato.
             </h1>
             <form
@@ -136,7 +186,11 @@ function Home() {
             <div className="mt-5">
               <FlavorCompass selected={flavors} onToggle={toggleFlavor} onPhoto />
             </div>
-            <div className="mt-3 flex flex-wrap gap-2">
+            <div className="mt-4">
+              <BoostBar selected={boost} onSelect={setBoost} onPhoto />
+            </div>
+            <div className="mt-3">
+              <DriftRail label="Momento">
               {MOODS.map((m) => (
                 <button
                   key={m.id}
@@ -144,19 +198,34 @@ function Home() {
                   onClick={() => setMood(m.id)}
                   aria-pressed={mood === m.id}
                   className={cn(
-                    "min-h-11 rounded-full border px-4 text-sm transition-[background-color,border-color,color] duration-150",
+                    "min-h-11 shrink-0 whitespace-nowrap rounded-full border px-4 text-sm transition-[background-color,border-color,color] duration-150",
                     mood === m.id
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-foreground/35 bg-background/25 text-foreground hover:bg-background/40",
+                      ? SWATCH_ON[MOOD_SWATCH[m.id]]
+                      : "border-cream/40 bg-ink/30 text-cream hover:bg-ink/45",
                   )}
                 >
                   {m.label}
                 </button>
               ))}
+              </DriftRail>
             </div>
+            {active ? (
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <p className="text-sm text-cream/80">
+                  {results.length} {results.length === 1 ? "plato" : "platos"} en esta mesa
+                </p>
+                <Button variant="secondary" onClick={clearFilters} className="h-9">
+                  Limpiar
+                </Button>
+              </div>
+            ) : null}
           </div>
         </section>
 
+        {showFeatured ? <FestivalTable seed={seed} /> : null}
+
+        {!active ? (
+          <>
         <section className="border-b border-border">
           <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
             <div className="mb-3 flex items-end justify-between gap-3">
@@ -178,8 +247,8 @@ function Home() {
                     className="relative h-40 w-44 shrink-0 overflow-hidden rounded-xl text-left"
                   >
                     <img src={r.cover} alt="" className="h-full w-full object-cover" />
-                    <span className="absolute inset-0 bg-gradient-to-t from-background/80 to-background/10" />
-                    <span className="absolute inset-x-0 bottom-0 p-3 text-foreground">
+                    <span className="absolute inset-0 photo-scrim-tile" />
+                    <span className="absolute inset-x-0 bottom-0 p-3 text-cream">
                       <span className="block font-display text-base leading-tight">{r.label}</span>
                       <span className="text-xs opacity-80">
                         {r.hint} · {count}
@@ -195,10 +264,40 @@ function Home() {
         <section className="border-b border-border">
           <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
             <p className="mb-3 text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
+              Desayuno, postre y vaso
+            </p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {FAMILIES.filter((f) => COURSE_IDS.includes(f.id)).map((f) => {
+                const count = RECIPES.filter((x) => x.familyId === f.id).length;
+                return (
+                  <Link
+                    key={f.id}
+                    to="/tipo/$id"
+                    params={{ id: f.id }}
+                    className="relative h-52 overflow-hidden rounded-xl text-left"
+                  >
+                    <img src={f.cover} alt="" className="h-full w-full object-cover" />
+                    <span className="absolute inset-0 photo-scrim-tile" />
+                    <span className="absolute inset-x-0 bottom-0 p-4 text-cream">
+                      <span className="block font-display text-2xl leading-tight">{f.label}</span>
+                      <span className="mt-1 block text-sm opacity-85">
+                        {f.hint} · {count}
+                      </span>
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+            <p className="mb-3 text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
               Por tipo de plato
             </p>
             <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-1">
-              {FAMILIES.map((f) => {
+              {FAMILIES.filter((f) => !COURSE_IDS.includes(f.id)).map((f) => {
                 const count = RECIPES.filter((x) => x.familyId === f.id).length;
                 return (
                   <Link
@@ -208,8 +307,8 @@ function Home() {
                     className="relative h-40 w-48 shrink-0 overflow-hidden rounded-xl text-left"
                   >
                     <img src={f.cover} alt="" className="h-full w-full object-cover" />
-                    <span className="absolute inset-0 bg-gradient-to-t from-background/85 to-background/10" />
-                    <span className="absolute inset-x-0 bottom-0 p-3 text-foreground">
+                    <span className="absolute inset-0 photo-scrim-tile" />
+                    <span className="absolute inset-x-0 bottom-0 p-3 text-cream">
                       <span className="block font-display text-base leading-tight">{f.label}</span>
                       <span className="text-xs opacity-80">
                         {f.hint} · {count}
@@ -225,10 +324,10 @@ function Home() {
         <section className="border-b border-border">
           <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
             <p className="mb-3 text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
-              Por país · {countryRail.length}
+              Por país · {shuffledRail.length}
             </p>
             <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-              {countryRail.map((k) => {
+              {shuffledRail.map((k) => {
                 return (
                   <Link
                     key={k.slug}
@@ -237,8 +336,8 @@ function Home() {
                     className="relative h-32 w-40 shrink-0 overflow-hidden rounded-xl text-left"
                   >
                     <img src={k.cover} alt="" className="h-full w-full object-cover" />
-                    <span className="absolute inset-0 bg-gradient-to-t from-background/85 to-background/15" />
-                    <span className="absolute inset-x-0 bottom-0 p-2.5 text-foreground">
+                    <span className="absolute inset-0 photo-scrim-tile" />
+                    <span className="absolute inset-x-0 bottom-0 p-2.5 text-cream">
                       <span className="block font-display text-sm leading-tight">{k.name}</span>
                       <span className="line-clamp-1 text-[0.7rem] opacity-80">
                         {k.signatures.slice(0, 2).join(" · ")}
@@ -250,13 +349,18 @@ function Home() {
             </div>
           </div>
         </section>
+          </>
+        ) : null}
 
         {showFeatured ? (
           <section className="px-0">
             <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-              <p className="mb-3 text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
-                Mesa del día
-              </p>
+              <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+                <p className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
+                  Mesa del momento
+                </p>
+                <ShuffleMesa onShuffle={reshuffle} />
+              </div>
               <RecipeCard
                 recipe={featured}
                 featured
@@ -267,23 +371,36 @@ function Home() {
           </section>
         ) : null}
 
-        <section>
+        <section ref={resultsRef} id="mesa-resultados" className="scroll-mt-24">
           <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
             <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="font-display text-2xl">
-                  {favoritesOnly ? "Tu mesa" : kitchen ? kitchen.name : "El mundo"}
+                  {favoritesOnly
+                    ? "Tu mesa"
+                    : kitchen
+                      ? kitchen.name
+                      : boostMeta
+                        ? boostMeta.label
+                        : "El mundo"}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  {kitchen ? kitchen.blurb : `${results.length} ${results.length === 1 ? "plato" : "platos"}`}
+                  {kitchen
+                    ? kitchen.blurb
+                    : boostMeta
+                      ? `${boostMeta.blurb} · ${results.length} ${results.length === 1 ? "plato" : "platos"}`
+                      : `${results.length} ${results.length === 1 ? "plato" : "platos"}`}
                   {pantry.length > 0 && !kitchen ? " que encajan con tu despensa" : ""}
                 </p>
               </div>
-              {active ? (
-                <Button variant="ghost" onClick={clearFilters}>
-                  Limpiar
-                </Button>
-              ) : null}
+              <div className="flex flex-wrap gap-2">
+                {!active ? <ShuffleMesa onShuffle={reshuffle} /> : null}
+                {active ? (
+                  <Button variant="ghost" onClick={clearFilters}>
+                    Limpiar
+                  </Button>
+                ) : null}
+              </div>
             </div>
 
             {kitchen ? (
@@ -335,13 +452,13 @@ function Home() {
                         {chapter.kitchen && chapter.recipes.length > 0 ? (
                           <Button variant="ghost" className="h-9 px-2" asChild>
                             <Link to="/pais/$slug" params={{ slug: chapter.kitchen.slug }}>
-                              Ver {chapter.name} · {chapter.recipes.length}
+                              Ver {chapter.name} · {chapter.kitchen.count}
                             </Link>
                           </Button>
                         ) : null}
                       </div>
                       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {chapter.recipes.slice(0, 3).map((recipe) => {
+                        {chapter.recipes.map((recipe) => {
                           const overlap = results.find((r) => r.recipe.slug === recipe.slug)?.overlap;
                           return (
                             <RecipeCard
@@ -357,13 +474,13 @@ function Home() {
                     </section>
                   ))}
                 </div>
-                {shownCountries < chapters.length ? (
+                {shownCountries < shuffledChapters.length ? (
                   <div className="mt-8 flex justify-center">
                     <Button
                       variant="outline"
                       onClick={() => setShownCountries((n) => n + COUNTRY_PAGE)}
                     >
-                      Más países · {chapters.length - shownCountries}
+                      Más países · {shuffledChapters.length - shownCountries}
                     </Button>
                   </div>
                 ) : null}

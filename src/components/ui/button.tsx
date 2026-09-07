@@ -15,6 +15,8 @@ const buttonVariants = cva(
         ghost: "text-foreground hover:bg-muted",
         stamp:
           "border border-dashed border-primary/40 bg-card text-primary hover:bg-muted",
+        chile: "bg-chile text-chile-foreground hover:bg-chile/90",
+        leaf: "bg-leaf text-leaf-foreground hover:bg-leaf/90",
       },
       size: {
         default: "h-11 rounded-md px-4",

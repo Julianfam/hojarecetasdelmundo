@@ -46,7 +46,7 @@ function CountryPage() {
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/45 to-background/40" />
+          <div className="absolute inset-0 photo-scrim" />
           <div className="relative mx-auto flex min-h-[78svh] max-w-6xl flex-col justify-end px-4 pt-24 pb-10 sm:px-6">
             <Button variant="secondary" asChild className="mb-6 w-fit">
               <Link to="/">
@@ -54,16 +54,16 @@ function CountryPage() {
                 Hoja
               </Link>
             </Button>
-            <p className="text-xs tracking-[0.18em] text-foreground/80 uppercase">
+            <p className="text-xs tracking-[0.18em] text-cream/80 uppercase">
               {kitchen.regionLabel} · cocina {stop.index + 1} de {stop.total}
             </p>
-            <h1 className="mt-2 font-display text-5xl font-medium tracking-tight text-foreground sm:text-7xl">
+            <h1 className="mt-2 font-display text-5xl font-medium tracking-tight text-cream sm:text-7xl">
               {kitchen.name}
             </h1>
-            <p className="mt-4 max-w-2xl font-display text-xl leading-snug text-foreground/90">
+            <p className="mt-4 max-w-2xl font-display text-xl leading-snug text-cream/90">
               {kitchen.blurb}
             </p>
-            <p className="mt-3 max-w-2xl text-sm text-foreground/75">{kitchen.contrast}</p>
+            <p className="mt-3 max-w-2xl text-sm text-cream/75">{kitchen.contrast}</p>
             {first ? (
               <Button asChild className="mt-6 w-fit">
                 <Link to="/recipe/$slug" params={{ slug: first.slug }}>
@@ -138,8 +138,8 @@ function CountryPage() {
                     className="group relative overflow-hidden rounded-xl"
                   >
                     <img src={n.cover} alt="" className="h-40 w-full object-cover" />
-                    <span className="absolute inset-0 bg-gradient-to-t from-background/85 to-background/10" />
-                    <span className="absolute inset-x-0 bottom-0 p-3 text-foreground">
+                    <span className="absolute inset-0 photo-scrim-tile" />
+                    <span className="absolute inset-x-0 bottom-0 p-3 text-cream">
                       <span className="block font-display text-lg">{n.name}</span>
                       <span className="line-clamp-2 text-xs opacity-80">{n.contrast}</span>
                     </span>

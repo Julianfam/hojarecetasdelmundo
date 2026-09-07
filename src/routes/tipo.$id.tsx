@@ -45,7 +45,7 @@ function TipoPage() {
       <main>
         <section className="relative min-h-[78svh]">
           <img src={family.cover} alt="" className="absolute inset-0 h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/45 to-background/40" />
+          <div className="absolute inset-0 photo-scrim" />
           <div className="relative mx-auto flex min-h-[78svh] max-w-6xl flex-col justify-end px-4 pt-24 pb-10 sm:px-6">
             <Button variant="secondary" asChild className="mb-6 w-fit">
               <Link to="/">
@@ -53,13 +53,13 @@ function TipoPage() {
                 Hoja
               </Link>
             </Button>
-            <p className="text-xs tracking-[0.18em] text-foreground/80 uppercase">
+            <p className="text-xs tracking-[0.18em] text-cream/80 uppercase">
               Tipo {index + 1} de {FAMILIES.length} · {countries.length} países
             </p>
-            <h1 className="mt-2 font-display text-5xl font-medium tracking-tight text-foreground sm:text-7xl">
+            <h1 className="mt-2 font-display text-5xl font-medium tracking-tight text-cream sm:text-7xl">
               {family.label}
             </h1>
-            <p className="mt-4 max-w-2xl font-display text-xl leading-snug text-foreground/90">{family.blurb}</p>
+            <p className="mt-4 max-w-2xl font-display text-xl leading-snug text-cream/90">{family.blurb}</p>
             {first ? (
               <Button asChild className="mt-6 w-fit">
                 <Link to="/recipe/$slug" params={{ slug: first.slug }}>

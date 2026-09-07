@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { FlavorId, MoodId, RegionId } from "@/lib/recipe-types";
+import type { BoostId } from "@/lib/boosts";
 
 export interface BasketItem {
   slug: string;
@@ -18,11 +19,13 @@ interface ExplorerState {
   regionId: RegionId | null;
   country: string | null;
   mood: MoodId | null;
+  boost: BoostId | null;
   pantry: string[];
   favorites: string[];
   basket: BasketItem[];
   toast: BasketToast | null;
   favoritesOnly: boolean;
+  suggestionSeed: number;
   hydrated: boolean;
   setQuery: (query: string) => void;
   toggleFlavor: (id: FlavorId) => void;
@@ -30,6 +33,7 @@ interface ExplorerState {
   setCountry: (name: string | null) => void;
   openCountry: (name: string) => void;
   setMood: (id: MoodId | null) => void;
+  setBoost: (id: BoostId | null) => void;
   togglePantry: (key: string) => void;
   clearPantry: () => void;
   toggleFavorite: (slug: string) => void;
@@ -40,6 +44,7 @@ interface ExplorerState {
   clearBasket: () => void;
   clearToast: () => void;
   setFavoritesOnly: (on: boolean) => void;
+  reshuffle: () => void;
   clearFilters: () => void;
   setHydrated: () => void;
 }
@@ -70,11 +75,13 @@ export const useExplorer = create<ExplorerState>()(
       regionId: null,
       country: null,
       mood: null,
+      boost: null,
       pantry: [],
       favorites: [],
       basket: [],
       toast: null,
       favoritesOnly: false,
+      suggestionSeed: 1,
       hydrated: false,
       setQuery: (query) => set({ query }),
       toggleFlavor: (id) =>
@@ -95,6 +102,7 @@ export const useExplorer = create<ExplorerState>()(
         }),
       openCountry: (name) => set({ country: name, regionId: null, favoritesOnly: false }),
       setMood: (id) => set({ mood: get().mood === id ? null : id }),
+      setBoost: (id) => set({ boost: get().boost === id ? null : id }),
       togglePantry: (key) =>
         set({
           pantry: get().pantry.includes(key)
@@ -145,6 +153,10 @@ export const useExplorer = create<ExplorerState>()(
       clearBasket: () => set({ basket: [] }),
       clearToast: () => set({ toast: null }),
       setFavoritesOnly: (on) => set({ favoritesOnly: on }),
+      reshuffle: () =>
+        set({
+          suggestionSeed: (Date.now() ^ Math.floor(Math.random() * 1_000_000)) >>> 0 || 1,
+        }),
       clearFilters: () =>
         set({
           query: "",
@@ -152,7 +164,9 @@ export const useExplorer = create<ExplorerState>()(
           regionId: null,
           country: null,
           mood: null,
+          boost: null,
           favoritesOnly: false,
+          pantry: [],
         }),
       setHydrated: () => set({ hydrated: true }),
     }),

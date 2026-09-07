@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, Heart, ShoppingCart } from "lucide-react";
 import type { Recipe } from "@/lib/recipes";
-import { FLAVORS } from "@/lib/recipes";
+import { FLAVORS, SWATCH_ON } from "@/lib/recipes";
 import { countrySlug } from "@/lib/countries";
 import { useExplorer } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,7 @@ export function RecipeCard({
           decoding="async"
           className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-background/25 to-transparent" />
+        <div className="absolute inset-0 photo-scrim" />
       </Link>
 
       <button
@@ -55,7 +55,7 @@ export function RecipeCard({
           e.stopPropagation();
           toggleBasket(recipe.slug, recipe.name);
         }}
-        className="absolute top-3 left-3 z-10 flex size-11 items-center justify-center rounded-md bg-background/40 text-foreground backdrop-blur-sm transition-colors duration-150 hover:bg-background/60"
+        className="absolute top-3 left-3 z-10 flex size-11 items-center justify-center rounded-md bg-ink/40 text-cream backdrop-blur-sm transition-colors duration-150 hover:bg-ink/60"
       >
         <ShoppingCart className={cn("size-5", inBasket && "fill-primary text-primary")} />
       </button>
@@ -68,14 +68,14 @@ export function RecipeCard({
           e.stopPropagation();
           onFavorite(recipe.slug);
         }}
-        className="absolute top-3 right-3 z-10 flex size-11 items-center justify-center rounded-md bg-background/40 text-foreground backdrop-blur-sm transition-colors duration-150 hover:bg-background/60"
+        className="absolute top-3 right-3 z-10 flex size-11 items-center justify-center rounded-md bg-ink/40 text-cream backdrop-blur-sm transition-colors duration-150 hover:bg-ink/60"
       >
         <Heart className={cn("size-5", favorite && "fill-primary text-primary")} />
       </button>
 
       <div
         className={cn(
-          "pointer-events-none absolute inset-x-0 bottom-0 z-10 p-4 text-foreground",
+          "pointer-events-none absolute inset-x-0 bottom-0 z-10 p-4 text-cream",
           featured && "p-6 sm:p-8",
         )}
       >
@@ -115,11 +115,20 @@ export function RecipeCard({
           ) : (
             <Badge variant="muted">{recipe.difficulty}</Badge>
           )}
-          {recipe.flavors.slice(0, featured ? 4 : 2).map((id) => (
-            <Badge key={id} variant="outline" className="border-foreground/30 bg-background/40 text-foreground">
-              {FLAVORS.find((f) => f.id === id)?.label ?? id}
-            </Badge>
-          ))}
+          {[...new Set(recipe.flavors)].slice(0, featured ? 4 : 2).map((id) => {
+            const flavor = FLAVORS.find((f) => f.id === id);
+            return (
+              <Badge
+                key={id}
+                variant="outline"
+                className={cn(
+                  flavor ? SWATCH_ON[flavor.swatch] : "border-cream/40 bg-ink/30 text-cream",
+                )}
+              >
+                {flavor?.label ?? id}
+              </Badge>
+            );
+          })}
         </div>
       </div>
     </article>

@@ -1,6 +1,10 @@
 import { EXPANSION } from "./catalog-expansion";
 import { WAVE } from "./catalog-wave";
+import { MESA } from "./catalog-mesa";
+import { CURSOS } from "./catalog-cursos";
 import { hydrateRecipe } from "./cook-steps";
+import { shuffleCopy } from "./shuffle";
+import { boostHay, boostScore, type BoostId } from "./boosts";
 import type { FlavorId, MoodId, Recipe, RecipeSource, RegionId } from "./recipe-types";
 
 export type {
@@ -14,19 +18,33 @@ export type {
   RecipeSource,
   RegionId,
 } from "./recipe-types";
-export { FAMILIES, familyOf, getFamily, recipesInFamily } from "./families";
+export { FAMILIES, familyOf, getFamily, recipesInFamily, COURSE_IDS } from "./families";
 export { formatStepClock, timerSecondsForStep } from "./cook-steps";
 
-export const FLAVORS: { id: FlavorId; label: string; blurb: string }[] = [
-  { id: "umami", label: "Umami", blurb: "Caldo, soja, profundidad" },
-  { id: "picante", label: "Picante", blurb: "Ají, chile, fuego" },
-  { id: "citrico", label: "Cítrico", blurb: "Lima, vinagre, brillo" },
-  { id: "ahumado", label: "Ahumado", blurb: "Brasa, pimentón, carbón" },
-  { id: "herbal", label: "Herbal", blurb: "Cilantro, albahaca, menta" },
-  { id: "dulce", label: "Dulce", blurb: "Caramelo, fruta, coco" },
-  { id: "cremoso", label: "Cremoso", blurb: "Yema, nata, mantequilla" },
-  { id: "fresco", label: "Fresco", blurb: "Crudo, crujiente, jardín" },
+export const FLAVORS: { id: FlavorId; label: string; blurb: string; swatch: "gold" | "chile" | "leaf" | "wine" }[] = [
+  { id: "umami", label: "Umami", blurb: "Caldo, soja, profundidad", swatch: "gold" },
+  { id: "picante", label: "Picante", blurb: "Ají, chile, fuego", swatch: "chile" },
+  { id: "citrico", label: "Cítrico", blurb: "Lima, vinagre, brillo", swatch: "gold" },
+  { id: "ahumado", label: "Ahumado", blurb: "Brasa, pimentón, carbón", swatch: "wine" },
+  { id: "herbal", label: "Herbal", blurb: "Cilantro, albahaca, menta", swatch: "leaf" },
+  { id: "dulce", label: "Dulce", blurb: "Caramelo, fruta, coco", swatch: "chile" },
+  { id: "cremoso", label: "Cremoso", blurb: "Yema, nata, mantequilla", swatch: "gold" },
+  { id: "fresco", label: "Fresco", blurb: "Crudo, crujiente, jardín", swatch: "leaf" },
 ];
+
+export const SWATCH_CHIP: Record<"gold" | "chile" | "leaf" | "wine", string> = {
+  gold: "border-primary/45 bg-primary/15 text-stamp",
+  chile: "border-chile/45 bg-chile/12 text-chile",
+  leaf: "border-leaf/45 bg-leaf/12 text-leaf",
+  wine: "border-wine/45 bg-wine/12 text-wine",
+};
+
+export const SWATCH_ON: Record<"gold" | "chile" | "leaf" | "wine", string> = {
+  gold: "border-primary bg-primary text-primary-foreground",
+  chile: "border-chile bg-chile text-chile-foreground",
+  leaf: "border-leaf bg-leaf text-leaf-foreground",
+  wine: "border-wine bg-wine text-wine-foreground",
+};
 
 export const REGIONS: { id: RegionId; label: string; hint: string; cover: string }[] = [
   { id: "latam", label: "América Latina", hint: "Maíz, ají, brasa", cover: "/dishes/tacos-al-pastor.jpg" },
@@ -1639,12 +1657,17 @@ const CORE_RECIPES: RecipeSource[] = [
   },
 ];
 
-export const RECIPES: Recipe[] = [...CORE_RECIPES, ...EXPANSION, ...WAVE].map(hydrateRecipe);
+export const RECIPES: Recipe[] = [...CORE_RECIPES, ...EXPANSION, ...WAVE, ...MESA, ...CURSOS].map(hydrateRecipe);
 
 const BY_SLUG = new Map(RECIPES.map((r) => [r.slug, r]));
 
 export function getRecipe(slug: string) {
-  return BY_SLUG.get(slug);
+  try {
+    const decoded = decodeURIComponent(slug);
+    return BY_SLUG.get(decoded) ?? BY_SLUG.get(slug);
+  } catch {
+    return BY_SLUG.get(slug);
+  }
 }
 
 export function dailyRecipe(date = new Date()) {
@@ -1696,13 +1719,12 @@ export function pantryOverlap(recipe: Recipe, pantry: string[]) {
   return n;
 }
 
-export function familyMates(recipe: Recipe, limit = 6) {
-  return RECIPES.filter((r) => r.familyId === recipe.familyId && r.slug !== recipe.slug)
-    .sort((a, b) => a.country.localeCompare(b.country, "es") || a.name.localeCompare(b.name, "es"))
-    .slice(0, limit);
+export function familyMates(recipe: Recipe, limit = 6, seed = 1) {
+  const pool = RECIPES.filter((r) => r.familyId === recipe.familyId && r.slug !== recipe.slug);
+  return shuffleCopy(pool, seed).slice(0, limit);
 }
 
-export function similarRecipes(recipe: Recipe, limit = 3) {
+export function similarRecipes(recipe: Recipe, limit = 3, seed = 1) {
   const ranked = RECIPES.filter((r) => r.slug !== recipe.slug)
     .map((r) => {
       const flavor = r.flavors.filter((f) => recipe.flavors.includes(f)).length;
@@ -1716,7 +1738,8 @@ export function similarRecipes(recipe: Recipe, limit = 3) {
     .map((x) => x.recipe);
   const same = ranked.filter((r) => r.country === recipe.country);
   const rest = ranked.filter((r) => r.country !== recipe.country);
-  return [...same, ...rest].slice(0, limit);
+  const pool = [...same, ...rest].slice(0, Math.max(limit * 4, 12));
+  return shuffleCopy(pool, seed).slice(0, limit);
 }
 
 export interface Filters {
@@ -1725,6 +1748,7 @@ export interface Filters {
   regionId: RegionId | null;
   country: string | null;
   mood: MoodId | null;
+  boost: BoostId | null;
   pantry: string[];
   favoritesOnly: boolean;
   favoriteSlugs: string[];
@@ -1741,6 +1765,8 @@ export function filterRecipes(filters: Filters) {
     if (filters.regionId && recipe.regionId !== filters.regionId) return null;
     if (filters.country && recipe.country !== filters.country) return null;
     if (filters.mood && !recipe.moods.includes(filters.mood)) return null;
+    const boostPts = filters.boost ? boostScore(recipe, filters.boost) : 0;
+    if (filters.boost && boostPts <= 0) return null;
     if (filters.flavors.length > 0) {
       const hit = filters.flavors.every((f) => recipe.flavors.includes(f));
       if (!hit) return null;
@@ -1757,6 +1783,7 @@ export function filterRecipes(filters: Filters) {
       ...recipe.flavors,
       ...recipe.moods,
       recipe.familyId,
+      boostHay(recipe),
     ]
       .join(" ")
       .toLowerCase();
@@ -1770,6 +1797,7 @@ export function filterRecipes(filters: Filters) {
     if (q && recipe.name.toLowerCase().includes(q)) score += 8;
     score += overlap * 3;
     score += filters.flavors.filter((f) => recipe.flavors.includes(f)).length;
+    if (filters.boost) score += boostPts * 3;
     return { recipe, score, overlap };
   }).filter((x): x is { recipe: Recipe; score: number; overlap: number } => x !== null);
 

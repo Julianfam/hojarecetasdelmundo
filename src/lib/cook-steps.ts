@@ -11,6 +11,7 @@ const TOOL_RULES: ToolRule[] = [
   { re: /pilón|machaca/i, tool: "Pilón o mortero" },
   { re: /\bmortero\b|\bmaja\b/i, tool: "Mortero" },
   { re: /licúa|licuadora|procesa/i, tool: "Licuadora" },
+  { re: /cuela|infusiona|hierve agua|ceba |licúa con yogur/i, tool: "Jarra o cafetera" },
   { re: /varilla|\bbate\b|emulsiona/i, tool: "Varillas y bol" },
   { re: /fríe|fritura|aceite a |reboz|\bpanko\b|empan/i, tool: "Cazuela honda" },
   { re: /sartén|dora|sofreír|sofríe|confitá/i, tool: "Sartén" },
@@ -146,6 +147,7 @@ export function hydrateRecipe(recipe: RecipeSource): Recipe {
   });
   return {
     ...recipe,
+    flavors: [...new Set(recipe.flavors)],
     familyId: familyOf(recipe.slug, recipe.name, recipe.tags),
     steps,
   };

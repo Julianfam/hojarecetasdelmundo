@@ -47,7 +47,7 @@ function DestinoPage() {
       <main>
         <section className="relative min-h-[78svh]">
           <img src={region.cover} alt="" className="absolute inset-0 h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/45 to-background/40" />
+          <div className="absolute inset-0 photo-scrim" />
           <div className="relative mx-auto flex min-h-[78svh] max-w-6xl flex-col justify-end px-4 pt-24 pb-10 sm:px-6">
             <Button variant="secondary" asChild className="mb-6 w-fit">
               <Link to="/">
@@ -55,13 +55,13 @@ function DestinoPage() {
                 Hoja
               </Link>
             </Button>
-            <p className="text-xs tracking-[0.18em] text-foreground/80 uppercase">
+            <p className="text-xs tracking-[0.18em] text-cream/80 uppercase">
               Destino {index + 1} de {REGIONS.length} · {kitchens.length} cocinas
             </p>
-            <h1 className="mt-2 font-display text-5xl font-medium tracking-tight text-foreground sm:text-7xl">
+            <h1 className="mt-2 font-display text-5xl font-medium tracking-tight text-cream sm:text-7xl">
               {region.label}
             </h1>
-            <p className="mt-4 max-w-2xl font-display text-xl leading-snug text-foreground/90">
+            <p className="mt-4 max-w-2xl font-display text-xl leading-snug text-cream/90">
               {region.hint}. {plates.length} platos en esta mesa.
             </p>
             {first ? (
@@ -98,8 +98,8 @@ function DestinoPage() {
                   className="group relative overflow-hidden rounded-xl"
                 >
                   <img src={k.cover} alt="" className="h-44 w-full object-cover" />
-                  <span className="absolute inset-0 bg-gradient-to-t from-background/85 to-background/10" />
-                  <span className="absolute inset-x-0 bottom-0 p-3 text-foreground">
+                  <span className="absolute inset-0 photo-scrim-tile" />
+                  <span className="absolute inset-x-0 bottom-0 p-3 text-cream">
                     <span className="block font-display text-lg">{k.name}</span>
                     <span className="line-clamp-2 text-xs opacity-80">{k.contrast}</span>
                   </span>

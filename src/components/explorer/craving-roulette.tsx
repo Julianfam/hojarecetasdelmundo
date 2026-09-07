@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown, Dices } from "lucide-react";
 import { RECIPES } from "@/lib/recipes";
+import { currentFestivals, festivalRecipes } from "@/lib/festivals";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 
 const WHEEL = 12;
+const PALETTE = ["var(--color-primary)", "var(--color-chile)", "var(--color-leaf)", "var(--color-wine)"];
 
 export function CravingRoulette() {
   const navigate = useNavigate();
@@ -25,7 +27,7 @@ export function CravingRoulette() {
 
   const gradient = useMemo(() => {
     const stops = Array.from({ length: WHEEL }, (_, i) => {
-      const c = i % 2 === 0 ? "var(--color-primary)" : "var(--color-secondary)";
+      const c = PALETTE[i % PALETTE.length] ?? "var(--color-primary)";
       return `${c} ${i * slice}deg ${(i + 1) * slice}deg`;
     });
     return `conic-gradient(${stops.join(", ")})`;
@@ -33,7 +35,10 @@ export function CravingRoulette() {
 
   function spin() {
     if (spinning || RECIPES.length === 0) return;
-    const index = Math.floor(Math.random() * RECIPES.length);
+    const [fest] = currentFestivals();
+    const themed = fest ? festivalRecipes(fest, Date.now(), 24) : [];
+    const pool = themed.length >= 8 ? themed : RECIPES;
+    const index = Math.floor(Math.random() * pool.length);
     const extra = 5 * 360;
     const wheelIndex = index % WHEEL;
     const target = extra + (360 - wheelIndex * slice - slice / 2);
@@ -41,7 +46,7 @@ export function CravingRoulette() {
     setSpinning(true);
     setRotation((prev) => prev + target);
     window.setTimeout(() => {
-      setPicked(RECIPES[index] ?? RECIPES[0] ?? null);
+      setPicked(pool[index] ?? RECIPES[0] ?? null);
       setSpinning(false);
     }, 2400);
   }
