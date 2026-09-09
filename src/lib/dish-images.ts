@@ -1,3 +1,4 @@
+import { ALL_IDS } from "./dish-image-ids";
 import type { FamilyId, RegionId } from "./recipe-types";
 
 export interface ImageQuery {
@@ -14,19 +15,19 @@ const STOP = new Set([
 ]);
 
 const FAMILY_HINTS: { family: FamilyId; needles: string[] }[] = [
-  { family: "bebida", needles: ["cafe", "chai", "mate", "horchata", "lassi", "te-menta", "jamaica", "matcha", "canelazo", "bubble-tea", "ca-phe", "caipirinha", "chocolate-a-la-taza", "champurrado", "chicha", "gluhwein", "irish-coffee", "michelada", "mojito", "negroni", "paloma", "pisco", "sangria", "thai-iced", "teh-tarik", "ayran", "agua-de", "limonada"] },
-  { family: "postre", needles: ["tiramisu", "tres-leches", "baklava", "knafeh", "alfajores", "pastel-de-nata", "mango-sticky", "gulab", "cannoli", "cheesecake", "creme-brulee", "daifuku", "flan", "panna-cotta", "sacher", "selva-negra", "sticky-toffee", "brigadeiro", "chocotorta", "milhojas", "picarones", "suspiro", "kaiserschmarrn", "kanelbulle", "tarta-santiago", "tarte-citron", "halo-halo", "cendol", "acai", "churros"] },
+  { family: "bebida", needles: ["cafe", "chai", "mate", "horchata", "lassi", "te-menta", "jamaica", "matcha", "canelazo", "bubble-tea", "ca-phe", "caipirinha", "chocolate-a-la-taza", "champurrado", "chicha", "gluhwein", "irish-coffee", "michelada", "mojito", "negroni", "paloma", "pisco", "sangria", "thai-iced", "teh-tarik", "ayran", "agua-de", "limonada", "lulada", "rompope"] },
+  { family: "postre", needles: ["tiramisu", "tres-leches", "baklava", "knafeh", "alfajores", "pastel-de-nata", "mango-sticky", "gulab", "cannoli", "cheesecake", "creme-brulee", "daifuku", "flan", "panna-cotta", "sacher", "selva-negra", "sticky-toffee", "brigadeiro", "chocotorta", "milhojas", "picarones", "suspiro", "kaiserschmarrn", "kanelbulle", "tarta-santiago", "tarte-citron", "halo-halo", "cendol", "acai", "churros", "obleas", "pandebono"] },
   { family: "desayuno", needles: ["shakshuka", "huevos", "changua", "dosa", "ful-medames", "menemen", "congee", "kaya-toast", "full-english", "breakfast-burrito", "idli", "jianbing", "calentado", "ackee"] },
-  { family: "crudo", needles: ["ceviche", "poke", "som-tam", "larb", "fattoush", "gazpacho", "kitfo", "nicoise", "dakos", "caponata", "zaalouk", "hummus", "kokoda", "conch-salad"] },
-  { family: "maiz", needles: ["taco", "pupusa", "arepa", "humita", "pastel-de-choclo", "pibil", "pozole", "gallo-pinto", "chilaquiles", "motulenos", "cou-cou"] },
-  { family: "empanada", needles: ["empanada", "gyoza", "xiao-long", "pierogi", "pelmeni", "kibbeh", "spanakopita", "brik", "arancini", "takoyaki", "pani-puri", "bunuelos", "pastizzi"] },
-  { family: "caldo", needles: ["pho", "ramen", "soup", "caldo", "chowder", "gumbo", "ajiaco", "sancocho", "wonton", "kimchi-jjigae", "sundubu", "tom-yum", "tom-kha", "hot-and-sour", "niu-rou", "goat-water", "naengmyeon"] },
+  { family: "crudo", needles: ["ceviche", "poke", "som-tam", "larb", "fattoush", "gazpacho", "kitfo", "nicoise", "dakos", "caponata", "zaalouk", "hummus", "kokoda", "conch-salad", "aguachile"] },
+  { family: "maiz", needles: ["taco", "pupusa", "arepa", "humita", "pastel-de-choclo", "pibil", "pozole", "gallo-pinto", "chilaquiles", "motulenos", "cou-cou", "enchilada", "tamal", "tlayuda", "elote", "memela", "birria"] },
+  { family: "empanada", needles: ["empanada", "gyoza", "xiao-long", "pierogi", "pelmeni", "kibbeh", "spanakopita", "brik", "arancini", "takoyaki", "pani-puri", "bunuelos", "pastizzi", "tequeno", "coxinha"] },
+  { family: "caldo", needles: ["pho", "ramen", "soup", "caldo", "chowder", "gumbo", "ajiaco", "sancocho", "wonton", "kimchi-jjigae", "sundubu", "tom-yum", "tom-kha", "hot-and-sour", "niu-rou", "goat-water", "naengmyeon", "menudo", "harira", "lablabi", "mondongo", "joumou", "pepper-soup"] },
   { family: "fideo", needles: ["pad-thai", "carbonara", "dan-dan", "japchae", "laksa", "khao-soi", "jajangmyeon", "fideua", "cacio", "lasagna", "gnocchi", "vongole", "pesto", "norma", "mee-goreng", "tteokbokki", "bun-cha", "banh-cuon"] },
   { family: "curry", needles: ["curry", "butter-chicken", "massaman", "vindaloo", "panang", "katsu-curry", "palak", "dal-makhani", "chole", "ema-datshi"] },
-  { family: "brasa", needles: ["jerk", "brisket", "souvlaki", "koobideh", "carne-asada", "anticuchos", "nyama", "piri-piri", "satay", "char-siu", "shawarma", "shish", "siu-yuk", "pato-pekin", "cevapi", "kapana", "halloumi"] },
-  { family: "frito", needles: ["tonkatsu", "schnitzel", "fish-and-chips", "falafel", "nashville", "poutine", "crab-cakes", "fried-steak", "doubles"] },
+  { family: "brasa", needles: ["jerk", "brisket", "souvlaki", "koobideh", "carne-asada", "anticuchos", "nyama", "piri-piri", "satay", "char-siu", "shawarma", "shish", "siu-yuk", "pato-pekin", "cevapi", "kapana", "halloumi", "suya", "tibs", "boerewors", "pachamanca", "attieke"] },
+  { family: "frito", needles: ["tonkatsu", "schnitzel", "fish-and-chips", "falafel", "nashville", "poutine", "crab-cakes", "fried-steak", "doubles", "tostones", "griot", "tempura", "scotch-egg", "kroket", "langos", "bitterballen", "rosti", "pasteis", "taameya", "vetkoek", "chiles-rellenos"] },
   { family: "pan", needles: ["pizza", "banh-mi", "cubano", "chivito", "lahmacun", "manakish", "croque", "bagels", "francesinha", "pan-con-tomate", "smorrebrod", "roti-canai", "sabich", "khachapuri", "dholl-puri"] },
-  { family: "arroz", needles: ["paella", "jollof", "biryani", "nasi", "risotto", "yangzhou", "thieb", "koshari", "tacu", "jambalaya", "waakye", "com-tam", "hainanese", "oyakodon", "omurice", "bibimbap", "plov", "machboos", "shuwa"] },
+  { family: "arroz", needles: ["paella", "jollof", "biryani", "nasi", "risotto", "yangzhou", "thieb", "koshari", "tacu", "jambalaya", "waakye", "com-tam", "hainanese", "oyakodon", "omurice", "bibimbap", "plov", "machboos", "shuwa", "rice-and-peas"] },
 ];
 
 const REGION_HINTS: { region: RegionId; needles: string[] }[] = [
@@ -151,314 +152,48 @@ const ALIAS: Record<string, string> = {
   matoke: "matoke",
   waakye: "waakye",
   muamba: "muamba",
+  enchiladas: "enchiladas-suizas",
+  tamales: "tamales-oaxaquenos",
+  tlayuda: "tlayuda",
+  "mole-negro": "mole-negro",
+  "chiles-rellenos": "chiles-rellenos",
+  elote: "elote-callejero",
+  birria: "birria-jalisco",
+  aguachile: "aguachile-verde",
+  bandeja: "bandeja-paisa",
+  lechona: "lechona-tolimense",
+  causa: "causa-limena",
+  coxinha: "coxinha",
+  tequenos: "tequenos",
+  tostones: "tostones",
+  pachamanca: "pachamanca",
+  joumou: "soup-joumou",
+  griot: "griot",
+  suya: "suya",
+  tibs: "tibs",
+  harira: "harira",
+  boerewors: "boerewors",
+  tempura: "tempura-moriawase",
+  "scotch-egg": "scotch-egg",
+  barbacoa: "tacos-de-barbacoa",
+  carnitas: "tacos-de-carnitas",
+  menudo: "menudo-rojo",
+  tinga: "tinga-poblana",
+  memelas: "memelas-oaxaca",
+  pandebono: "pandebono",
+  mondongo: "mondongo-colombiano",
+  obleas: "obleas",
+  lulada: "lulada",
+  kroket: "kroket",
+  langos: "langos",
+  bitterballen: "bitterballen",
+  rosti: "rosti",
+  "wiener-schnitzel": "wiener-schnitzel",
+  lablabi: "lablabi",
+  taameya: "taameya",
+  vetkoek: "vetkoek",
+  romazava: "romazava",
 };
-
-const ALL_IDS: string[] = [
-  "acai-bowl",
-  "ackee-saltfish",
-  "agua-de-jamaica",
-  "agua-de-panela",
-  "aji-de-gallina",
-  "ajiaco-santafereno",
-  "alfajores",
-  "amok-trey",
-  "anticuchos",
-  "arancini",
-  "arepas",
-  "arroz-con-gandules",
-  "arroz-con-leche",
-  "asaro",
-  "ayran",
-  "bacalhau-bras",
-  "bagels-lox",
-  "baklava",
-  "banh-cuon",
-  "banh-mi",
-  "bazeen",
-  "beef-wellington",
-  "bibimbap",
-  "bigos",
-  "bobotie",
-  "boeuf-bourguignon",
-  "borscht",
-  "breakfast-burrito",
-  "brigadeiros",
-  "brik",
-  "bubble-tea",
-  "bun-cha",
-  "bunny-chow",
-  "bunuelos",
-  "butter-chicken",
-  "ca-phe-sua-da",
-  "ca-phe-trung",
-  "cachupa",
-  "cacio-e-pepe",
-  "cafe-de-olla",
-  "cafe-turco",
-  "caipirinha",
-  "caldo-verde",
-  "calentado",
-  "callaloo",
-  "canelazo",
-  "cannoli",
-  "caponata",
-  "carne-asada",
-  "cassoulet",
-  "cendol",
-  "cevapi",
-  "ceviche-limeno",
-  "champurrado",
-  "changua",
-  "char-siu",
-  "cheesecake-ny",
-  "chicha-morada",
-  "chicken-adobo",
-  "chicken-biryani",
-  "chicken-fried-steak",
-  "chilaquiles-verdes",
-  "chiles-en-nogada",
-  "chivito",
-  "chocolate-a-la-taza",
-  "chocotorta",
-  "chole-bhature",
-  "choucroute",
-  "churros",
-  "cioppino",
-  "clam-chowder",
-  "cochinita-pibil",
-  "com-tam",
-  "conch-salad",
-  "congee",
-  "coq-au-vin",
-  "cou-cou",
-  "couscous-royal",
-  "crab-cakes",
-  "creme-brulee",
-  "croque-madame",
-  "daifuku",
-  "dakos",
-  "dal-makhani",
-  "dan-dan-mian",
-  "dholl-puri",
-  "dolma",
-  "doro-wat",
-  "doubles",
-  "egusi",
-  "ema-datshi",
-  "empanadas-criollas",
-  "falafel",
-  "fattoush",
-  "feijoada",
-  "fesenjan",
-  "fideua",
-  "fish-and-chips",
-  "flan-napolitano",
-  "fondue",
-  "francesinha",
-  "fufu-bowl",
-  "ful-medames",
-  "full-english",
-  "gallo-pinto",
-  "gazpacho",
-  "ghormeh-sabzi",
-  "gluhwein",
-  "gnocchi-sorrentina",
-  "goat-water",
-  "goulash",
-  "green-curry",
-  "gulab-jamun",
-  "gumbo",
-  "gyoza",
-  "hainanese-chicken",
-  "halloumi-grill",
-  "halo-halo",
-  "horchata",
-  "hot-and-sour-soup",
-  "huevos-motulenos",
-  "huevos-pericos",
-  "huevos-rancheros",
-  "humitas",
-  "hummus",
-  "idli-sambar",
-  "imam-bayildi",
-  "injera-platter",
-  "irish-coffee",
-  "irish-stew",
-  "jajangmyeon",
-  "jambalaya",
-  "japchae",
-  "jerk-chicken",
-  "jianbing",
-  "jollof-rice",
-  "kaesespaetzle",
-  "kaiserschmarrn",
-  "kanelbulle",
-  "kapana",
-  "kare-kare",
-  "katsu-curry",
-  "kaya-toast",
-  "khachapuri",
-  "khao-soi",
-  "kibbeh",
-  "kimchi-jjigae",
-  "kitfo",
-  "kleftiko",
-  "knafeh",
-  "kokoda",
-  "koobideh",
-  "koshari",
-  "kung-pao-chicken",
-  "lahmacun",
-  "laksa",
-  "lap-lap",
-  "larb",
-  "lasagna",
-  "light-soup",
-  "limonada-de-coco",
-  "lobster-roll",
-  "locro",
-  "lomo-saltado",
-  "maafe",
-  "machboos",
-  "manakish",
-  "mango-lassi",
-  "mango-sticky-rice",
-  "mansaf",
-  "mapo-tofu",
-  "maqluba",
-  "masala-chai",
-  "masala-dosa",
-  "massaman-curry",
-  "matcha",
-  "mate",
-  "matoke",
-  "mee-goreng",
-  "menemen",
-  "michelada",
-  "milanesa-napolitana",
-  "milhojas",
-  "mofongo",
-  "mojito",
-  "mole-poblano",
-  "moqueca-baiana",
-  "moussaka",
-  "muamba",
-  "mujadara",
-  "musakhan",
-  "naengmyeon",
-  "nashville-hot-chicken",
-  "nasi-goreng",
-  "nasi-lemak",
-  "ndole",
-  "negroni",
-  "nikujaga",
-  "niu-rou-mian",
-  "nsima",
-  "nyama-choma",
-  "oil-down",
-  "okonomiyaki",
-  "omurice",
-  "oyakodon",
-  "pad-thai",
-  "paella-valenciana",
-  "palak-paneer",
-  "paloma",
-  "palusami",
-  "pan-con-tomate",
-  "panang-curry",
-  "pani-puri",
-  "panna-cotta",
-  "paprikash",
-  "pasta-alla-norma",
-  "pastel-de-choclo",
-  "pastel-de-nata",
-  "pastizzi",
-  "pato-pekin",
-  "pelmeni",
-  "pepian",
-  "pepperpot",
-  "pesto-alla-genovese",
-  "pho-bo",
-  "picarones",
-  "pierogi",
-  "piri-piri-chicken",
-  "pisco-sour",
-  "pizza-margherita",
-  "plov-uzbek",
-  "poke-bowl",
-  "poulet-dg",
-  "poulet-yassa",
-  "poutine",
-  "pozole-rojo",
-  "pupusas",
-  "rabo-encendido",
-  "ramen-tonkotsu",
-  "ratatouille",
-  "rendang",
-  "ribollita",
-  "risotto-ai-funghi",
-  "rondon",
-  "ropa-vieja",
-  "roti-canai",
-  "sabich",
-  "sacher-torte",
-  "salade-nicoise",
-  "samgyetang",
-  "sancocho",
-  "sandwich-cubano",
-  "sangria",
-  "satay",
-  "sauerbraten",
-  "schnitzel",
-  "seco-de-pollo",
-  "selva-negra",
-  "seswaa",
-  "shakshuka",
-  "shawarma",
-  "shepherds-pie",
-  "shiro",
-  "shish-taouk",
-  "shuwa",
-  "sinigang",
-  "siu-yuk",
-  "smorrebrod",
-  "som-tam",
-  "souvlaki",
-  "spaghetti-carbonara",
-  "spanakopita",
-  "sticky-toffee",
-  "stroganoff",
-  "sundubu-jjigae",
-  "suspiro-limeno",
-  "swedish-meatballs",
-  "tacos-al-pastor",
-  "tacu-tacu",
-  "tagine-cordero",
-  "takoyaki",
-  "tarta-santiago",
-  "tarte-citron",
-  "te-menta",
-  "teh-tarik",
-  "texas-brisket",
-  "thai-iced-tea",
-  "thieboudienne",
-  "tiramisu",
-  "tom-kha-gai",
-  "tom-yum-goong",
-  "tonkatsu",
-  "tortilla-espanola",
-  "tres-leches",
-  "tteokbokki",
-  "vindaloo",
-  "vongole",
-  "waakye",
-  "waffles-liege",
-  "wonton-soup",
-  "xiao-long-bao",
-  "yangzhou-fried-rice",
-  "youvetsi",
-  "zaalouk"
-];
 
 interface Photo {
   id: string;
@@ -539,7 +274,12 @@ function aliasHitsFor(q: ImageQuery): string[] {
 }
 
 function strippedSlug(slug: string) {
-  return slug.replace(/-plus(?:-[a-z0-9]+)?$/g, "");
+  return slug.replace(/-plus(?:-[a-z0-9]+)?$/g, "").replace(/-extra\d*$/g, "");
+}
+
+export function uniqueImagePath(slug: string) {
+  if (HAS_FILE.has(slug)) return `/dishes/${slug}.jpg`;
+  return `/dishes/u/${slug}.jpg`;
 }
 
 export function pickDishImage(
@@ -641,80 +381,9 @@ export function rebalanceImages<
     image: string;
   },
 >(recipes: T[]): T[] {
-  const out = recipes.map((recipe) => ({ ...recipe }));
-  const usage = new Map<string, number>();
-  const assigned = new Set<string>();
-
-  const byCountry = new Map<string, T[]>();
-  for (const recipe of out) {
-    const list = byCountry.get(recipe.country);
-    if (list) list.push(recipe);
-    else byCountry.set(recipe.country, [recipe]);
-  }
-
-  const queryOf = (recipe: T): ImageQuery => ({
-    slug: recipe.slug,
-    name: recipe.name,
-    country: recipe.country,
-    regionId: recipe.regionId,
-    family: recipe.familyId,
-  });
-
-  for (const recipe of out) {
-    if (!HAS_FILE.has(recipe.slug)) continue;
-    recipe.image = `/dishes/${recipe.slug}.jpg`;
-    assigned.add(recipe.slug);
-    usage.set(recipe.slug, (usage.get(recipe.slug) ?? 0) + 1);
-  }
-
-  for (const group of byCountry.values()) {
-    const used = new Set(
-      group.filter((recipe) => assigned.has(recipe.slug)).map((recipe) => stemOf(recipe.image)),
-    );
-    const ranked = [...group].sort((a, b) => Number(isExactOrAliased(b)) - Number(isExactOrAliased(a)));
-    for (const recipe of ranked) {
-      if (assigned.has(recipe.slug)) continue;
-      if (!isExactOrAliased(recipe)) continue;
-      const image = pickDishImage(queryOf(recipe), new Set(), usage);
-      recipe.image = image;
-      const stem = stemOf(image);
-      used.add(stem);
-      assigned.add(recipe.slug);
-      usage.set(stem, (usage.get(stem) ?? 0) + 1);
-    }
-  }
-
-  const coverUsed = new Set<string>();
-  for (const group of byCountry.values()) {
-    const used = new Set(
-      group.filter((recipe) => assigned.has(recipe.slug)).map((recipe) => stemOf(recipe.image)),
-    );
-    let coverLocked = false;
-    for (const recipe of group) {
-      if (assigned.has(recipe.slug)) {
-        if (!coverLocked) {
-          coverUsed.add(stemOf(recipe.image));
-          coverLocked = true;
-        }
-        continue;
-      }
-      const avoid = new Set(used);
-      if (!coverLocked) {
-        for (const id of coverUsed) avoid.add(id);
-      }
-      const image = pickDishImage(queryOf(recipe), avoid, usage);
-      recipe.image = image;
-      const stem = stemOf(image);
-      used.add(stem);
-      assigned.add(recipe.slug);
-      if (!coverLocked) {
-        coverUsed.add(stem);
-        coverLocked = true;
-      }
-      usage.set(stem, (usage.get(stem) ?? 0) + 1);
-    }
-  }
-
-  return out;
+  return recipes.map((recipe) => ({
+    ...recipe,
+    image: uniqueImagePath(recipe.slug),
+  }));
 }
 

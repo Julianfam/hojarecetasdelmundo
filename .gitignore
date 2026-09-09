@@ -13,3 +13,4 @@ AGENTS.md
 startup.sh
 .grok/*
 !.grok/app-env.json
+public/dishes/u/
